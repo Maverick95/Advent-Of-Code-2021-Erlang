@@ -24,7 +24,7 @@ interface(Data) ->
     Result = io:fread("Please enter an instruction > ", "~a"),
 
     case Result of
-        { ok, [Instruction | _] } when Instruction == forward; Instruction == up; Instruction == down ->
+        { ok, [Instruction] } when Instruction == forward; Instruction == up; Instruction == down ->
             
             Value = number(),
             Instruction ! {Data, Value, self()},
@@ -33,11 +33,15 @@ interface(Data) ->
                 interface(DataNew)
             end;
 
-        { ok, [result | _] } ->
+        { ok, [result] } ->
             result(Data),
             interface(Data);
 
-        { ok, [quit | _] } ->
+        { ok, [reset] } ->
+            io:fwrite("Submarine data reset.~n"),
+            interface({0, 0, 0});
+
+        { ok, [quit] } ->
             io:fwrite("Thanks for using!~n"),
             0;
 
