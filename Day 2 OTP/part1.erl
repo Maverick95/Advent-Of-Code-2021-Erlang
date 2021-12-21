@@ -25,7 +25,18 @@ handle_call({up, Value}, _, State) ->
 
 handle_call({down, Value}, _, State) ->
     {Distance, Depth} = State,
-    {reply, ok, {Distance, Depth + Value}}.
+    {reply, ok, {Distance, Depth + Value}};
+
+handle_call(result, _, State) ->
+    {Distance, Depth} = State,
+    {
+        reply,
+        [
+            {"Distance", Distance},
+            {"Depth", Depth}
+        ],
+        State
+    }.
 
 handle_cast(quit, State) ->
     {stop, normal, State}.

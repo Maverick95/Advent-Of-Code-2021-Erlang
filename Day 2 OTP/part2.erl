@@ -21,11 +21,23 @@ handle_call({forward, Value}, _, State) ->
 
 handle_call({up, Value}, _, State) ->
     {Distance, Depth, Aim} = State,
-    {reply, error, {Distance, Depth, Aim - Value}};
+    {reply, ok, {Distance, Depth, Aim - Value}};
 
 handle_call({down, Value}, _, State) ->
     {Distance, Depth, Aim} = State,
-    {reply, error, {Distance, Depth, Aim + Value}}.
+    {reply, ok, {Distance, Depth, Aim + Value}};
+
+handle_call(result, _, State) ->
+    {Distance, Depth, Aim} = State,
+    {
+        reply,
+        [
+            {"Distance", Distance},
+            {"Depth", Depth},
+            {"Aim", Aim}
+        ],
+        State
+    }.
 
 handle_cast(quit, State) ->
     {stop, normal, State}.

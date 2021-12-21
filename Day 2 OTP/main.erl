@@ -1,11 +1,18 @@
 -module(main).
 -export([
-    start/1,
+    start/0,
+    add/1,
     stop/0
 ]).
 
-start(Mod) ->
-    gen_server:start_link({local, server}, Mod, [], []).
+start() ->
+    gen_event:start_link({local, aoc}),
+    gen_event:add_handler(aoc, {data_handler, part1}, {part1, part1, part1_logger}),
+    gen_event:add_handler(aoc, {data_handler, part2}, {part2, part2, part2_logger}),
+    ok.
 
+add(Data) ->
+    gen_event:notify(aoc, Data).
+    
 stop() ->
-    gen_server:cast(server, quit).
+    gen_event:stop(aoc).
