@@ -15,7 +15,11 @@ It is a Microservices language at its core, so far I haven't had much time to ge
 The features I like are the destructuring, its interesting to see this in a language 20 years old being adopted by Javascript in the last ES, I wonder if somebody stumbled across Erlang and went "hey this is good let's throw it in".
 But I guess like in Javascript especially with React which is functional you're constantly passing prototypes around and you need to access elements quickly.
 
-The root of Erlang's strength is in the way functions and case statements are defined, you write multiple function definitions based on the types / conditions of arguments received. This means you can build a function that handles 3 different object types in no time at all, in other languages you'd have to messily destructure / check arguments and set up a big wall of ifs and cases.
+The root of Erlang's strength is in the way functions and case statements are defined, you write multiple function definitions based on the types / conditions of arguments received. This means you can build a function that handles 3 different object types in no time at all, compared to say -
+Javascript, where you'd have to messily destructure and check arguments against a big wall of ifs and cases.
+C#, where you'd have to battle against the strong types.
+Erlang is more about just letting your data be data, wonder if this means I'll run into the same problems as with vanilla JS, where unfolding your own errors becomes an exercise in frustration, especially when the language is non-boilerplate and minimises keystrokes.
+I don't want to have to decode 20 lines of symbols [ with [ code | written] ++ [like, this]] to identify a misplaced bracket.
 
 Interesting in how Erlang works under the hood. As if I'd understand it. Can imagine it being a nightmare to optimise.
 
