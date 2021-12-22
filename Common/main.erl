@@ -2,6 +2,7 @@
 -export([
     start/2,
     add/1,
+    import/1,
     query/0,
     stop/0
 ]).
@@ -20,6 +21,9 @@ add(Data) ->
         _ ->
             gen_event:notify(aoc_manager, Event)
     end.
+
+import(File) ->
+    spawn(file_import, import, [File, main]).
 
 query() ->
     gen_event:notify(aoc_manager, result).
