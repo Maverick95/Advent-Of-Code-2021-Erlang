@@ -38,7 +38,7 @@ transform(Input, State) ->
     TransformInstruction = transform(Input, instruction),
     case TransformInstruction of
         error -> error;
-        _Else ->
+        _ ->
             {StringInstruction, StringValue} = TransformInstruction,
             Instruction = find(StringInstruction, State),
             Value = transform(StringValue, value),
