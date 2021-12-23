@@ -28,8 +28,8 @@ create_coords(Input) ->
     Split = string:split(Input, " -> ", all),
     case length(Split) of
         2 ->
-            Values = lists:map(Split, fun (X) -> create_coord(X) end),
-            Valid = lists:all(Values, fun (X) -> X /= error end),
+            Values = lists:map(fun (X) -> create_coord(X) end, Split),
+            Valid = lists:all(fun (X) -> X /= error end, Values),
             case Valid of
                 true ->
                     [Start, End] = Values,
@@ -47,8 +47,8 @@ create_coord(Input) ->
     Split = string:split(Input, ",", all),
     case length(Split) of
         2 ->
-            Values = lists:map(Split, fun (X) -> to_integer(X) end),
-            Valid = lists:all(Values, fun (X) -> X /= error end), 
+            Values = lists:map(fun (X) -> to_integer(X) end, Split),
+            Valid = lists:all(fun (X) -> X /= error end, Values), 
             case Valid of
                 true ->
                     [X, Y] = Values,
