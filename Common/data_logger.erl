@@ -14,14 +14,16 @@ handle_call(_, Name) ->
     {ok, error, Name}.
 
 handle_event(Data, Name) ->
+    io:format("--- Begin output for ~s ---~n", [Name]),
     print(Data, Name),
+    io:format("--- End output for ~s ---~n", [Name]),
     {ok, Name}.
 
 print([Next | Rest], Name) ->
     {Type, Value} = Next,
-    io:format("Value of ~s~n", [Type]),
-    io:format("= ~B~n", [Value]),
+    io:format("Value of ~s: ", [Type]),
+    io:format("= ~w~n", [Value]),
     print(Rest, Name);
 
-print([], Name) ->
-    io:format("---~s~n", [Name]).
+print([], _) ->
+    ok.
