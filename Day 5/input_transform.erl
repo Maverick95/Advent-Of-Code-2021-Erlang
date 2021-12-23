@@ -68,10 +68,10 @@ to_integer(Input) ->
         {error, _} ->
             error;
         {Value, Rest} ->
-            case string:length(Rest) of
-                0 ->
+            if
+                Value >= 0, Rest == "" ->
                     Value;
-                _ ->
+                true ->
                     error
             end
     end.
