@@ -31,3 +31,8 @@ One thing that's not very clear is to do with passing by reference or value, for
 
 Main problem is it doesn't work like any language I've encountered, so every problem seems like a headache. I'm trying to implement Day 5 at the moment (well I'm about to start).
 
+The VS Code helper for Erlang can be a bit flaky, sometimes if you get a syntax error highlighted in red, if you delete/add a character to leave the same code the error will disappear.
+
+Erlang encourages you to write fewer lines / characters of code. It is very "whatever the opposite of verbose is". Concise. That's the word. Concise.
+
+Disadvantages - sometimes you get multiple nested case-s and ifs where the else returns say an error. In these cases EVERY NESTED CONDITIONAL STATEMENT must define the "else" condition, or else (no pun intended) you get a run-time error.
