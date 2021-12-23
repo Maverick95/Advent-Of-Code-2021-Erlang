@@ -6,22 +6,22 @@
 
 
 
-import(Path, Mod) ->
+import(Path, Manager) ->
     case file:open(Path, read) of
         {ok, Device} ->
-            read_lines(Device, Mod);
+            read_lines(Device, Manager);
         _ ->
             error
     end.
 
 
 
-read_lines(Device, Mod) ->
+read_lines(Device, Manager) ->
     case file:read_line(Device) of
         {ok, Line} ->
             Data = check_lines(Line),
-            Mod:add(Data),
-            read_lines(Device, Mod);
+            gen_event:notify(Manager, Data),
+            read_lines(Device, Manager);
         {error, _} ->
             error;
         eof ->
