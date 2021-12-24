@@ -13,20 +13,19 @@ init(_) ->
 
 
 
-handle_call({{X1, Y1}, {X2, Y2}}, _, State) when X1 =< X2, Y1 == Y2 ->
-    NewState = handle_update_x(Y1, X1, X2, State),
+handle_call({C1, C2}, _, State) when C1 == C2 ->
+    {X1, Y1} = C1,
+    NewState = handle_update_x(Y1, X1, X1, State),
     {reply, ok, NewState};
 
-handle_call({{X1, Y1}, {X2, Y2}}, _, State) when X1 > X2, Y1 == Y2 ->
-    NewState = handle_update_x(Y1, X2, X1, State),
+handle_call({{X1, Y1}, {X2, Y2}}, _, State) when X1 == X2 ->
+    {O1, O2} = order(Y1, Y2),
+    NewState = handle_update_y(X1, O1, O2, State),
     {reply, ok, NewState};
 
-handle_call({{X1, Y1}, {X2, Y2}}, _, State) when X1 == X2, Y1 =< Y2 ->
-    NewState = handle_update_y(X1, Y1, Y2, State),
-    {reply, ok, NewState};
-
-handle_call({{X1, Y1}, {X2, Y2}}, _, State) when X1 == X2, Y1 > Y2 ->
-    NewState = handle_update_y(X1, Y2, Y1, State),
+handle_call({{X1, Y1}, {X2, Y2}}, _, State) when Y1 == Y2 ->
+    {O1, O2} = order(X1, X2),
+    NewState = handle_update_x(Y1, O1, O2, State),
     {reply, ok, NewState};
 
 handle_call(result, _, State) ->
@@ -42,6 +41,16 @@ handle_call(result, _, State) ->
 
 handle_call(_, _, State) ->
     {reply, ok, State}.
+
+
+
+order(V1, V2) ->
+    if
+        V1 =< V2 ->
+            {V1, V2};
+        true ->
+            {V2, V1}
+    end.
 
 
 

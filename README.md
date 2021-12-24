@@ -36,3 +36,6 @@ The VS Code helper for Erlang can be a bit flaky, sometimes if you get a syntax 
 Erlang encourages you to write fewer lines / characters of code. It is very "whatever the opposite of verbose is". Concise. That's the word. Concise.
 
 Disadvantages - sometimes you get multiple nested case-s and ifs where the else returns say an error. In these cases EVERY NESTED CONDITIONAL STATEMENT must define the "else" condition, or else (no pun intended) you get a run-time error.
+
+Also no offence but WHY in Erlang are the inequality operators COMPLETELY DIFFERENT THAN IN EVERY OTHER LANGUAGE KNOWN TO HUMANKIND.
+
