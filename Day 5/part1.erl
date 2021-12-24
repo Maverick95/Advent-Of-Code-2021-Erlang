@@ -14,18 +14,17 @@ init(_) ->
 
 
 handle_call({C1, C2}, _, State) when C1 == C2 ->
-    {X1, Y1} = C1,
-    NewState = handle_update_x(Y1, X1, X1, State),
+    NewState = handle_update(C1, {0, 0}, 0, State),
     {reply, ok, NewState};
 
 handle_call({{X1, Y1}, {X2, Y2}}, _, State) when X1 == X2 ->
-    {O1, O2} = order(Y1, Y2),
-    NewState = handle_update_y(X1, O1, O2, State),
+    Diff = if Y1 < Y2 -> 1; true -> -1 end,
+    NewState = handle_update({X1, Y1}, {0, Diff}, abs(Y2 - Y1), State),
     {reply, ok, NewState};
 
 handle_call({{X1, Y1}, {X2, Y2}}, _, State) when Y1 == Y2 ->
-    {O1, O2} = order(X1, X2),
-    NewState = handle_update_x(Y1, O1, O2, State),
+    Diff = if X1 < X2 -> 1; true -> -1 end,
+    NewState = handle_update({X1, Y1}, {Diff, 0}, abs(X2 - X1), State),
     {reply, ok, NewState};
 
 handle_call(result, _, State) ->
@@ -44,30 +43,23 @@ handle_call(_, _, State) ->
 
 
 
-order(V1, V2) ->
-    if
-        V1 =< V2 ->
-            {V1, V2};
-        true ->
-            {V2, V1}
-    end.
+handle_update(C, D, Increases, State) ->
+    handle_update(C, D, 0, Increases, State).
 
-
-
-handle_update_x(_, X1, X2, State) when X1 > X2 ->
+handle_update(_, _, Index, Increases, State) when Index > Increases ->
     State;
 
-handle_update_x(Y, X1, X2, State) ->
+handle_update({X, Y}, {DiffX, DiffY}, Index, Increases, State) ->
     {Map, Volume} = State,
     Count =
-        case maps:find({X1, Y}, Map) of
+        case maps:find({X, Y}, Map) of
             {ok, Value} ->
                 Value;
             error ->
                 0
         end,
     NewCount = Count + 1,
-    NewMap = Map#{{X1, Y} => NewCount},
+    NewMap = Map#{{X, Y} => NewCount},
     NewVolume =
         case NewCount of
             2 ->
@@ -75,32 +67,7 @@ handle_update_x(Y, X1, X2, State) ->
             _ ->
                 Volume
         end,
-    handle_update_x(Y, X1 + 1, X2, {NewMap, NewVolume}).
-
-
-
-handle_update_y(_, Y1, Y2, State) when Y1 > Y2 ->
-    State;
-
-handle_update_y(X, Y1, Y2, State) ->
-    {Map, Volume} = State,
-    Count =
-        case maps:find({X, Y1}, Map) of
-            {ok, Value} ->
-                Value;
-            error ->
-                0
-        end,
-    NewCount = Count + 1,
-    NewMap = Map#{{X, Y1} => NewCount},
-    NewVolume =
-        case NewCount of
-            2 ->
-                Volume + 1;
-            _ ->
-                Volume
-        end,
-    handle_update_y(X, Y1 + 1, Y2, {NewMap, NewVolume}).
+    handle_update({X + DiffX, Y + DiffY}, {DiffX, DiffY}, Index + 1, Increases, {NewMap, NewVolume}).
 
 
 

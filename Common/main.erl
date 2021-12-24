@@ -20,7 +20,7 @@ start(Server, Transform) ->
     ok.
 
 add(Data) ->
-    gen_event:notify(aoc_input_manager, Data).
+    lists:foreach(fun(X) -> gen_event:notify(aoc_input_manager, X) end, Data).
 
 import(File) ->
     spawn(file_import, import, [File, aoc_input_manager]).
