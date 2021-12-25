@@ -1,8 +1,8 @@
 -module(main).
 -export([
     start/2,
-    add/1,
-    import/1,
+    terminal/1,
+    file/1,
     query/0,
     stop/0
 ]).
@@ -19,11 +19,11 @@ start(Server, Transform) ->
 
     ok.
 
-add(Data) ->
-    lists:foreach(fun(X) -> gen_event:notify(aoc_input_manager, X) end, Data).
+terminal(Data) ->
+    spawn(import, terminal, [Data, aoc_input_manager]).
 
-import(File) ->
-    spawn(file_import, import, [File, aoc_input_manager]).
+file(File) ->
+    spawn(import, file, [File, aoc_input_manager]).
 
 query() ->
     gen_event:notify(aoc_manager, result).

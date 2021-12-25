@@ -1,12 +1,17 @@
--module(file_import).
-
+-module(import).
 -export([
-    import/2
+    terminal/2,
+    file/2
 ]).
 
 
 
-import(Path, Manager) ->
+terminal(Data, Manager) ->
+    lists:foreach(fun(X) -> gen_event:notify(Manager, X) end, Data).
+
+
+
+file(Path, Manager) ->
     case file:open(Path, read) of
         {ok, Device} ->
             read_lines(Device, Manager);
@@ -68,5 +73,3 @@ check_first([Head | _], Char) ->
         _ ->
             false
     end.
-
-
