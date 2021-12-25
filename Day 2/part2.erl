@@ -6,8 +6,12 @@
     handle_cast/2
 ]).
 
+
+
 init(_) ->
     {ok, {0, 0, 0}}.
+
+
 
 handle_call({_, Value}, _, State) when Value < 0 ->
     {reply, error, State};
@@ -39,7 +43,7 @@ handle_call(result, _, State) ->
         State
     }.
 
-handle_cast(quit, State) ->
-    {stop, normal, State}.
 
 
+handle_cast(_, State) ->
+    {noreply, State}.

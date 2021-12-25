@@ -8,27 +8,23 @@
     terminate/2
 ]).
 
-init({Mod, Server, Logger}) ->
-    {_, PidServer} = gen_server:start_link({local, Server}, Mod, [], []),
-    {_, PidLogger} = gen_event:start_link({local, Logger}),
-    gen_event:add_handler(PidLogger, data_logger, Logger),
-    {ok, [PidServer, PidLogger]}.
+init({Server, Logger}) ->
+    {_, PidServer} = gen_server:start_link({local, Server}, Server, [], []),
+    {ok, {PidServer, Logger}}.
 
 handle_call(_, State) ->
     {ok, error, State}.
 
 handle_event(result, State) ->
-    [PidServer, PidLogger] = State,
+    {PidServer, Logger} = State,
     Reply = gen_server:call(PidServer, result),
-    gen_event:notify(PidLogger, Reply),
+    gen_event:notify(Logger, Reply),
     {ok, State};
 
 handle_event(Event, State) ->
-    [PidServer, _] = State,
-    % Note - exceptions not handled here.
+    {PidServer, _} = State,
     gen_server:call(PidServer, Event),
     {ok, State}.
 
-terminate(_, [PidServer, PidLogger]) ->
-    gen_server:cast(PidServer, quit),
-    gen_event:stop(PidLogger).
+terminate(_, {PidServer, _}) ->
+    gen_server:stop(PidServer).

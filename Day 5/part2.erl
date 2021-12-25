@@ -78,5 +78,5 @@ handle_update({X, Y}, {DiffX, DiffY}, Index, Increases, State) ->
 
 
 
-handle_cast(quit, State) ->
-    {stop, normal, State}.
+handle_cast(_, State) ->
+    {noreply, State}.

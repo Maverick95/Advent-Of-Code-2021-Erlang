@@ -1,4 +1,4 @@
--module(data_logger).
+-module(log_handler).
 -behaviour(gen_event).
 
 -export([
