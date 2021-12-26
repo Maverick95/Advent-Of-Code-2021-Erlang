@@ -1,8 +1,8 @@
 -module(main).
 -export([start/2, terminal/1, file/1,query/0]).
 
-start(Server, Transform) ->
-    supervisor:start_link({local, main_supervisor}, main_supervisor, {Server, Transform}).
+start(Servers, Transform) ->
+    supervisor:start_link({local, main_supervisor}, main_supervisor, {Servers, Transform}).
 
 terminal(Data) ->
     spawn(main_supervisor, start_input_terminal, [Data]).

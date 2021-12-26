@@ -32,9 +32,12 @@ start_logger() ->
 
 
 
-start_data_handler(Server) ->
-    Handler = gen_event:start_link({local, aoc_manager}),    
-    gen_event:add_handler(aoc_manager, data_handler, {Server, aoc_logger_manager}),
+start_data_handler(ServerDetails) ->
+    Handler = gen_event:start_link({local, aoc_manager}), 
+    lists:foreach(fun(X) ->
+       {_, Id, _} = X,
+       gen_event:add_handler(aoc_manager, data_handler, {Id, aoc_logger_manager}) end,
+       ServerDetails),
     Handler.
 
 
@@ -61,19 +64,19 @@ start_query() ->
 
 
 
-init({Server, Transform}) ->
-    {
-        ok,
-        {
-            #{},
-            [
+init({Servers, Transform}) ->
+
+    ServerDetails = server_details(Servers),
+    ServerConfigs = server_configs(ServerDetails),
+
+    BaseConfigs = [
                 #{
                     id => sup_logger,
                     start => {main_supervisor, start_logger, []}
                 },
                 #{
                     id => sup_data_handler,
-                    start => {main_supervisor, start_data_handler, [Server]}
+                    start => {main_supervisor, start_data_handler, [ServerDetails]}
                 },
                 #{
                     id => sup_input_server,
@@ -83,6 +86,36 @@ init({Server, Transform}) ->
                     id => sup_input_handler,
                     start => {main_supervisor, start_input_handler, []}
                 }
-            ]
+            ],
+
+    {
+        ok,
+        {
+            #{},
+            ServerConfigs ++ BaseConfigs
         }
     }.
+
+
+
+server_details(Servers) ->
+    server_details(Servers, [], 0).
+
+server_details([], Current, _) -> Current;
+
+server_details([Module | Rest], Current, Index) ->
+    Suffix = integer_to_list(Index),
+    SupId = list_to_atom("sup_data_server_" ++ Suffix),
+    Id = list_to_atom("aoc_data_server_" ++ Suffix),
+    Next = {SupId, Id, Module},
+    server_details(Rest, Current ++ [Next], Index + 1).
+
+
+
+server_configs(Details) ->
+    lists:map(
+        fun({SupId, Id, Module}) ->
+        #{
+            id => SupId,
+            start => {gen_server, start_link, [{local, Id}, Module, [], []]}
+        } end, Details).
