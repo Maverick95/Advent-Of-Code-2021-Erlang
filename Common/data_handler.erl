@@ -22,7 +22,7 @@ handle_call(_, State) ->
 handle_event(result, State) ->
     {Server, Logger} = State,
     Reply = gen_server:call(Server, result),
-    gen_event:notify(Logger, Reply),
+    gen_event:notify(Logger, {result, Server, Reply}),
     {ok, State};
 
 handle_event(Event, State) ->

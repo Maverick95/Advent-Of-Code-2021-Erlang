@@ -13,17 +13,17 @@ init(Name) ->
 handle_call(_, Name) ->
     {ok, error, Name}.
 
-handle_event(Data, Name) ->
-    io:format("--- Begin output for ~s ---~n", [Name]),
-    print(Data, Name),
-    io:format("--- End output for ~s ---~n", [Name]),
+handle_event({result, Server, Reply}, Name) ->
+    io:format("--- Begin output for ~s ---~n", [Server]),
+    print(Reply),
+    io:format("--- End output for ~s ---~n", [Server]),
     {ok, Name}.
 
-print([Next | Rest], Name) ->
+print([]) ->
+    ok;
+
+print([Next | Rest]) ->
     {Type, Value} = Next,
     io:format("Value of ~s: ", [Type]),
     io:format("= ~w~n", [Value]),
-    print(Rest, Name);
-
-print([], _) ->
-    ok.
+    print(Rest).
