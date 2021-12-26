@@ -6,6 +6,7 @@
     start_input_handler/0,
     start_input_terminal/1,
     start_input_file/1,
+    start_process/1,
     start_query/0,
     init/1
 ]).
@@ -56,6 +57,18 @@ start_input_terminal(Data) ->
 
 start_input_file(File) ->
     import:file(File, aoc_input_manager).
+
+
+
+start_process(Count) ->
+    start_process(0, Count).
+    
+start_process(Index, Count) when Index >= Count ->
+    ok;
+
+start_process(Index, Count) ->
+    gen_event:notify(aoc_manager, process),
+    start_process(Index + 1, Count).
 
 
 
