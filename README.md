@@ -39,3 +39,4 @@ Disadvantages - sometimes you get multiple nested case-s and ifs where the else 
 
 Also no offence but WHY in Erlang are the inequality operators COMPLETELY DIFFERENT THAN IN EVERY OTHER LANGUAGE KNOWN TO HUMANKIND.
 
+Config setup can be confusing, error logs are not always clear.

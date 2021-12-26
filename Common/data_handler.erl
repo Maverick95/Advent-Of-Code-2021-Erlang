@@ -7,11 +7,17 @@
     handle_event/2
 ]).
 
+
+
 init(State) ->
     {ok, State}.
 
+
+
 handle_call(_, State) ->
     {ok, error, State}.
+
+
 
 handle_event(result, State) ->
     {Server, Logger} = State,
@@ -21,6 +27,6 @@ handle_event(result, State) ->
 
 handle_event(Event, State) ->
     {Server, _} = State,
-    gen_server:call(Server, Event),
+    gen_server:cast(Server, Event),
     {ok, State}.
 

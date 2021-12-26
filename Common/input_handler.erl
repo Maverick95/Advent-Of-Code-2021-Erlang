@@ -7,8 +7,12 @@
     handle_call/2
 ]).
 
+
+
 init(State) ->
     {ok, State}.
+
+
 
 handle_event(Data, State) ->
     {Server, Manager} = State,
@@ -20,6 +24,8 @@ handle_event(Data, State) ->
             gen_event:notify(Manager, Transform),
             {ok, State}
     end.
+
+
 
 handle_call(_, State) ->
     {ok, error, State}.

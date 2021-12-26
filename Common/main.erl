@@ -1,5 +1,5 @@
 -module(main).
--export([start/2, terminal/1, file/1,query/0]).
+-export([start/2, terminal/1, file/1, query/0]).
 
 start(Servers, Transform) ->
     supervisor:start_link({local, main_supervisor}, main_supervisor, {Servers, Transform}).

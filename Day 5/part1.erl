@@ -13,19 +13,21 @@ init(_) ->
 
 
 
-handle_call({C1, C2}, _, State) when C1 == C2 ->
+handle_cast({C1, C2}, State) when C1 == C2 ->
     NewState = handle_update(C1, {0, 0}, 0, State),
-    {reply, ok, NewState};
+    {noreply, NewState};
 
-handle_call({{X1, Y1}, {X2, Y2}}, _, State) when X1 == X2 ->
+handle_cast({{X1, Y1}, {X2, Y2}}, State) when X1 == X2 ->
     Diff = if Y1 < Y2 -> 1; true -> -1 end,
     NewState = handle_update({X1, Y1}, {0, Diff}, abs(Y2 - Y1), State),
-    {reply, ok, NewState};
+    {noreply, NewState};
 
-handle_call({{X1, Y1}, {X2, Y2}}, _, State) when Y1 == Y2 ->
+handle_cast({{X1, Y1}, {X2, Y2}}, State) when Y1 == Y2 ->
     Diff = if X1 < X2 -> 1; true -> -1 end,
     NewState = handle_update({X1, Y1}, {Diff, 0}, abs(X2 - X1), State),
-    {reply, ok, NewState};
+    {noreply, NewState}.
+
+
 
 handle_call(result, _, State) ->
     {Map, Volume} = State,
@@ -36,10 +38,7 @@ handle_call(result, _, State) ->
             {"Volume", Volume}
         ],
         State
-    };
-
-handle_call(_, _, State) ->
-    {reply, ok, State}.
+    }.
 
 
 
@@ -68,8 +67,3 @@ handle_update({X, Y}, {DiffX, DiffY}, Index, Increases, State) ->
                 Volume
         end,
     handle_update({X + DiffX, Y + DiffY}, {DiffX, DiffY}, Index + 1, Increases, {NewMap, NewVolume}).
-
-
-
-handle_cast(_, State) ->
-    {noreply, State}.

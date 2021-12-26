@@ -13,23 +13,25 @@ init(_) ->
 
 
 
-handle_call({_, Value}, _, State) when Value < 0 ->
-    {reply, error, State};
+handle_cast({_, Value}, State) when Value < 0 ->
+    {noreply, State};
 
-handle_call({forward, Value}, _, State) ->
+handle_cast({forward, Value}, State) ->
     {Distance, Depth} = State,
-    {reply, ok, {Distance + Value, Depth}};
+    {noreply, {Distance + Value, Depth}};
 
-handle_call({up, Value}, _, {Distance, Depth}) when Value > Depth ->
-    {reply, error, {Distance, Depth}};
+handle_cast({up, Value}, {Distance, Depth}) when Value > Depth ->
+    {noreply, {Distance, Depth}};
 
-handle_call({up, Value}, _, State) ->
+handle_cast({up, Value}, State) ->
     {Distance, Depth} = State,
-    {reply, ok, {Distance, Depth - Value}};
+    {noreply, {Distance, Depth - Value}};
 
-handle_call({down, Value}, _, State) ->
+handle_cast({down, Value}, State) ->
     {Distance, Depth} = State,
-    {reply, ok, {Distance, Depth + Value}};
+    {noreply, {Distance, Depth + Value}}.
+
+
 
 handle_call(result, _, State) ->
     {Distance, Depth} = State,
@@ -41,8 +43,3 @@ handle_call(result, _, State) ->
         ],
         State
     }.
-
-
-
-handle_cast(_, State) ->
-    {noreply, State}.
