@@ -67,32 +67,36 @@ start_query() ->
 init({Servers, Transform}) ->
 
     ServerDetails = server_details(Servers),
+
+    LoggerConfigs = [
+        #{
+            id => sup_logger,
+            start => {main_supervisor, start_logger, []}
+        }
+    ],
+
     ServerConfigs = server_configs(ServerDetails),
 
-    BaseConfigs = [
-                #{
-                    id => sup_logger,
-                    start => {main_supervisor, start_logger, []}
-                },
-                #{
-                    id => sup_data_handler,
-                    start => {main_supervisor, start_data_handler, [ServerDetails]}
-                },
-                #{
-                    id => sup_input_server,
-                    start => {gen_server, start_link, [{local, aoc_input_transform}, Transform, [], []]}
-                },
-                #{
-                    id => sup_input_handler,
-                    start => {main_supervisor, start_input_handler, []}
-                }
-            ],
+    BaseConfigs = [     
+        #{
+            id => sup_data_handler,
+            start => {main_supervisor, start_data_handler, [ServerDetails]}
+        },
+        #{
+            id => sup_input_server,
+            start => {gen_server, start_link, [{local, aoc_input_transform}, Transform, [], []]}
+        },
+        #{
+            id => sup_input_handler,
+            start => {main_supervisor, start_input_handler, []}
+        }
+    ],
 
     {
         ok,
         {
             #{},
-            ServerConfigs ++ BaseConfigs
+            LoggerConfigs ++ ServerConfigs ++ BaseConfigs
         }
     }.
 
