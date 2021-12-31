@@ -1,8 +1,16 @@
--module(main).
--export([start/2, terminal/1, file/1, process/1, query/0]).
+-module(advent_of_code).
+-behaviour(application).
+-export([
+    start/2,
+    terminal/1,
+    file/1,
+    process/1,
+    query/0,
+    stop/1
+]).
 
-start(Servers, Transform) ->
-    supervisor:start_link({local, main_supervisor}, main_supervisor, {Servers, Transform}).
+start(_, Args) ->
+    supervisor:start_link(main_supervisor, Args).
 
 terminal(Data) ->
     spawn(main_supervisor, start_input_terminal, [Data]).
@@ -15,3 +23,6 @@ process(Count) ->
 
 query() ->
     spawn(main_supervisor, start_query, []).
+
+stop(_) ->
+    ok.

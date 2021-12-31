@@ -46,8 +46,8 @@
             mod,
             {
                 advent_of_code,
-                [{ [part1, part2], input_transform }]
+                { [part1, part2], input_transform }
             }
         }
     ]
-}
+}.
