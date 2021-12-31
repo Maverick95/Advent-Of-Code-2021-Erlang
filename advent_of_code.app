@@ -1,0 +1,53 @@
+{
+    application,
+    advent_of_code,
+    [
+        {
+            description,
+            "Advent of Code 2021"
+        },
+        {
+            vsn,
+            "1"
+        },
+        {
+            modules,
+            [
+                advent_of_code,
+                main_supervisor,
+                import,
+                input_handler,
+                data_handler,
+                log_handler,
+                input_transform,
+                part1,
+                part2
+            ]
+        },
+        {
+            registered,
+            [
+                aoc_logger_manager,
+                aoc_manager,
+                aoc_input_manager,
+                aoc_input_transform,
+                aoc_data_server_0,
+                aoc_data_server_1,
+                aoc_data_server_2,
+                aoc_data_server_3,
+                aoc_data_server_4
+            ]
+        },
+        {
+            applications,
+            []
+        },
+        {
+            mod,
+            {
+                advent_of_code,
+                [{ [part1, part2], input_transform }]
+            }
+        }
+    ]
+}
