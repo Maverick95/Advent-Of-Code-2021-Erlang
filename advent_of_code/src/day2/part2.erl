@@ -29,7 +29,12 @@ handle_cast({up, Value}, State) ->
 
 handle_cast({down, Value}, State) ->
     {Distance, Depth, Aim} = State,
-    {noreply, {Distance, Depth, Aim + Value}}.
+    {noreply, {Distance, Depth, Aim + Value}};
+
+
+
+handle_cast(reset, _) ->
+    {noreply, {0, 0, 0}}.
 
 
 

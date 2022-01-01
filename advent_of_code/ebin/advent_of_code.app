@@ -32,10 +32,7 @@
                 aoc_input_manager,
                 aoc_input_transform,
                 aoc_data_server_0,
-                aoc_data_server_1,
-                aoc_data_server_2,
-                aoc_data_server_3,
-                aoc_data_server_4
+                aoc_data_server_1
             ]
         },
         {

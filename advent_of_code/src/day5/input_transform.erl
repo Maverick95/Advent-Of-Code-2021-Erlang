@@ -19,7 +19,7 @@ handle_call(Input, _, _) ->
 
 
 
-handle_cast(_, _) ->
+handle_cast(reset, _) ->
     {noreply, 0}.
 
 

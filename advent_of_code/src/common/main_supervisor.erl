@@ -8,7 +8,8 @@
     start_input_file/1,
     start_process/1,
     start_query/0,
-    init/1
+    init/1,
+    reload_servers/1
 ]).
 
 
@@ -136,3 +137,66 @@ server_configs(Details) ->
             id => SupId,
             start => {gen_server, start_link, [{local, Id}, Module, [], []]}
         } end, Details).
+
+
+
+reload_servers(Day) ->
+
+    Files = [
+        { "part1", aoc_data_server_0 },
+        { "part2", aoc_data_server_1 },
+        { "input_transform", aoc_input_transform } ],
+
+    Results = lists:map(fun(X) -> full_load(X, Day) end, Files),
+    Resets = lists:filter(fun({_, _, Result}) -> Result /= error end, Results),
+    lists:foreach(fun({_, Server, _}) -> spawn(gen_server, cast, [Server, reset]) end, Resets).
+
+
+
+full_load({ File, Server }, Day) ->
+    AsciiDay = day_to_ascii(Day),
+    Directory = "../src/day" ++ AsciiDay,
+    FileAtom = list_to_atom(File),
+    CompileResult = compile:file(Directory ++ "/" ++ File),
+    if CompileResult /= error ->
+        Loaded =
+            case code:is_loaded(FileAtom) of
+                {file, _} -> true;
+                _ -> false
+            end,
+        Deleted = code:delete(FileAtom),
+        Purge = Loaded and (not Deleted),
+        {File, Server, load(FileAtom, Purge)};
+    true ->
+        {File, Server, error}
+    end.
+    
+
+
+day_to_ascii(Day) when Day > 0 ->
+    day_to_ascii(Day, []).
+
+day_to_ascii(Day, Current) when Day == 0 ->
+    Current;
+
+day_to_ascii(Day, Current) ->
+    Remainder = Day rem 10,
+    Head = 48 + Remainder,
+    Next = (Day - Remainder) div 10,
+    day_to_ascii(Next, [Head | Current]).
+
+
+
+load(FileAtom, false) ->
+    straight_load(FileAtom);
+
+load(FileAtom, true) ->
+    code:purge(FileAtom),
+    code:delete(FileAtom),
+    straight_load(FileAtom).
+
+
+
+straight_load(FileAtom) ->
+    {Result, _} = code:load_file(FileAtom),
+    Result.

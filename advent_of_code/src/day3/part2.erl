@@ -20,7 +20,12 @@ handle_cast({L, _}, {Length, Values}) when L /= Length ->
     {noreply, {Length, Values}};
 
 handle_cast({_, V}, {Length, Values}) ->
-    {noreply, {Length, [V | Values]}}.
+    {noreply, {Length, [V | Values]}};
+
+
+
+handle_cast(reset, _) ->
+    {noreply, {unset, []}}.
 
 
 

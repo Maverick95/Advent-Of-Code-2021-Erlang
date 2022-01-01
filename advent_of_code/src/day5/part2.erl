@@ -31,7 +31,12 @@ handle_cast({{X1, Y1}, {X2, Y2}}, State) when abs(X2 - X1) == abs(Y2 - Y1) ->
     DiffX = if X1 < X2 -> 1; true -> -1 end,
     DiffY = if Y1 < Y2 -> 1; true -> -1 end,
     NewState = handle_update({X1, Y1}, {DiffX, DiffY}, abs(X2 - X1), State),
-    {noreply, NewState}.
+    {noreply, NewState};
+
+
+
+handle_cast(reset, _) ->
+    {noreply, {#{}, 0}}.
 
 
 

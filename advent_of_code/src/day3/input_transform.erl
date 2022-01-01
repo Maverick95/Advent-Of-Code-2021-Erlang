@@ -19,6 +19,11 @@ handle_call(Input, _, State) ->
 
 
 
+handle_cast(reset, _) ->
+    {noreply, none}.
+
+
+
 get_integer(Bitstring) ->
     get_integer(Bitstring, 1, 0, 0).
 
@@ -34,8 +39,3 @@ get_integer([Head | Rest], Value, Length, Total) ->
         _ ->
             error
     end.
-
-
-
-handle_cast(_, State) ->
-    {noreply, State}.

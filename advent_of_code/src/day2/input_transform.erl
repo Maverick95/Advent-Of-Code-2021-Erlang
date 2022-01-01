@@ -23,8 +23,8 @@ handle_call(Input, _, State) ->
 
 
 
-handle_cast(_, State) ->
-    {noreply, State}.
+handle_cast(reset, _) ->
+    {noreply, [{"forward", forward}, {"up", up}, {"down", down}]}.
 
 
 
