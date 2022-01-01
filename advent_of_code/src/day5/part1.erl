@@ -30,7 +30,12 @@ handle_cast({{X1, Y1}, {X2, Y2}}, State) when Y1 == Y2 ->
 
 
 handle_cast(reset, _) ->
-    {noreply, {#{}, 0}}.
+    {noreply, {#{}, 0}};
+
+
+
+handle_cast(_, State) ->
+    {noreply, State}.
 
 
 
