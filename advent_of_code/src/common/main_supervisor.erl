@@ -9,7 +9,8 @@
     start_process/1,
     start_query/0,
     init/1,
-    reload_servers/1
+    reload_servers/1,
+    reset_servers/0
 ]).
 
 
@@ -147,13 +148,25 @@ reload_servers(Day) ->
         { "part2", aoc_data_server_1 },
         { "input_transform", aoc_input_transform } ],
 
-    Results = lists:map(fun(X) -> full_load(X, Day) end, Files),
-    Resets = lists:filter(fun({_, _, Result}) -> Result /= error end, Results),
-    lists:foreach(fun({_, Server, _}) -> spawn(gen_server, cast, [Server, reset]) end, Resets).
+    _Results = lists:map(fun({File, _}) -> full_load(File, Day) end, Files),
+    _Resets = lists:foreach(fun({_, Server}) -> spawn(gen_server, cast, [Server, reset]) end, Files),
+    ok.
 
 
 
-full_load({ File, Server }, Day) ->
+reset_servers() ->
+
+    Files = [
+        { "part1", aoc_data_server_0 },
+        { "part2", aoc_data_server_1 },
+        { "input_transform", aoc_input_transform } ],
+
+    _Resets = lists:foreach(fun({_, Server}) -> spawn(gen_server, cast, [Server, reset]) end, Files),
+    ok.
+
+
+
+full_load(File, Day) ->
     AsciiDay = day_to_ascii(Day),
     Directory = "../src/day" ++ AsciiDay,
     FileAtom = list_to_atom(File),
@@ -166,9 +179,9 @@ full_load({ File, Server }, Day) ->
             end,
         Deleted = code:delete(FileAtom),
         Purge = Loaded and (not Deleted),
-        {File, Server, load(FileAtom, Purge)};
+        {File, load(FileAtom, Purge)};
     true ->
-        {File, Server, error}
+        {File, error}
     end.
     
 
