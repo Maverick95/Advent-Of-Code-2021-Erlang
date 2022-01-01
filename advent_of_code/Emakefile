@@ -1,0 +1,11 @@
+{
+    [
+        'src/common/*',
+        'src/day2/*'
+    ],
+    [
+        {
+            outdir, "ebin"
+        }
+    ]
+}.
