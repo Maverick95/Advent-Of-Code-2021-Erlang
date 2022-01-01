@@ -40,3 +40,9 @@ Disadvantages - sometimes you get multiple nested case-s and ifs where the else 
 Also no offence but WHY in Erlang are the inequality operators COMPLETELY DIFFERENT THAN IN EVERY OTHER LANGUAGE KNOWN TO HUMANKIND.
 
 Config setup can be confusing, error logs are not always clear.
+
+Also the principles of loading code are there, in terms of the fundamentals, but in terms of practicality it's pretty horrific to implement. Or so it seems like it right away.
+
+The issue is, the problem I'm having can't be new, loading new code files into a running process is part of Erlang's design.
+All the individual commands are there, but it seems like you have to write your own weird script in order to get it to work,
+and all the commands are odd in a certain way. Managing the "old/current" code is a good idea but it seems hard to get your head around.
