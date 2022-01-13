@@ -68,7 +68,7 @@ process_numbers([], CurrentValue, CurrentList) ->
 
 
 process_row(Input) ->
-    process_row(Input, number, 0, []).
+    process_row(Input, space, 0, []).
 
 process_row([Head | Rest], number, CurrentValue, CurrentList) when Head == 32 ->
     process_row(Rest, space, 0, [CurrentValue | CurrentList]);
@@ -84,15 +84,19 @@ process_row([Head | Rest], space, _, CurrentList) when Head >= 48, Head =< 57 ->
     NewValue = Head - 48,
     process_row(Rest, number, NewValue, CurrentList);
 
-process_row([], _, CurrentValue, CurrentList) ->
+process_row([], space, _, CurrentList) ->
+    lists:reverse(CurrentList);
+
+process_row([], number, CurrentValue, CurrentList) ->
     lists:reverse([CurrentValue | CurrentList]).
+
 
 %% Test functions %%
 
 get_line_type_test_() ->
     lists:map(
-        fun({Input, Expected}) -> ?_assert(
-            get_line_type(Input) =:= Expected
+        fun({Input, Expected}) -> ?_assertEqual(Expected,
+            get_line_type(Input) 
         ) end,
         [
             { 0, numbers },
@@ -110,4 +114,24 @@ get_line_type_test_() ->
             { 12, { board, 1, 4 } },
             { 13, blank }
         ]).
-    
+
+process_numbers_test_() ->
+    lists:map(
+        fun({Input, Expected}) -> ?_assertEqual(Expected,
+            process_numbers(Input) 
+        ) end,
+        [
+            {   "1,13,65,23,1",       [1,13,65,23,1]        },
+            {   "119,05,7,8,1234",    [119,5,7,8,1234]      }
+        ]).
+
+process_row_test_() ->
+    lists:map(
+        fun({Input, Expected}) -> ?_assertEqual(Expected,
+            process_row(Input) 
+        ) end,
+        [
+            {   "1    13   5 23    4 5",    [1,13,5,23,4,5]     },
+            {   "789 3  9  4   1432 ",      [789,3,9,4,1432]    },
+            {   "   78  4 64  5  143 7",    [78,4,64,5,143,7]   }
+        ]).
