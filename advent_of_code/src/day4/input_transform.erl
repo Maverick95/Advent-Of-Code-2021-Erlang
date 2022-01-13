@@ -1,6 +1,8 @@
 -module(input_transform).
 -behaviour(gen_server).
 
+-include_lib("eunit/include/eunit.hrl").
+
 -export([
     init/1,
     handle_call/3,
@@ -84,3 +86,28 @@ process_row([Head | Rest], space, _, CurrentList) when Head >= 48, Head =< 57 ->
 
 process_row([], _, CurrentValue, CurrentList) ->
     lists:reverse([CurrentValue | CurrentList]).
+
+%% Test functions %%
+
+get_line_type_test_() ->
+    lists:map(
+        fun({Input, Expected}) -> ?_assert(
+            get_line_type(Input) =:= Expected
+        ) end,
+        [
+            { 0, numbers },
+            { 1, blank },
+            { 2, { board, 0, 0 } },
+            { 3, { board, 0, 1 } },
+            { 4, { board, 0, 2 } },
+            { 5, { board, 0, 3 } },
+            { 6, { board, 0, 4 } },
+            { 7, blank },
+            { 8, { board, 1, 0 } },
+            { 9, { board, 1, 1 } },
+            { 10, { board, 1, 2 } },
+            { 11, { board, 1, 3 } },
+            { 12, { board, 1, 4 } },
+            { 13, blank }
+        ]).
+    
