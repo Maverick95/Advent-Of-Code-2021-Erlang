@@ -9,17 +9,13 @@
     handle_cast/2
 ]).
 
-
+% Server definitions
 
 init(_) ->
     {ok, 0}. % Lines processed to date, used to determine type of input.
 
-
-
 handle_cast(reset, _) ->
     {noreply, 0}.
-
-
 
 handle_call(Input, _, State) ->
     LineType = get_line_type(State),
@@ -34,7 +30,7 @@ handle_call(Input, _, State) ->
             {reply, Return, NewState}
     end.
 
-
+% get_line_type
 
 get_line_type(State) ->
     case State of
@@ -49,49 +45,6 @@ get_line_type(State) ->
                     {board, BoardIndex, RowIndex}
             end
     end.
-
-
-
-process_numbers(Input) ->
-    process_numbers(Input, 0, []).
-
-process_numbers([Head | Rest], CurrentValue, CurrentList) when Head == 44 ->
-    process_numbers(Rest, 0, [CurrentValue | CurrentList]);
-
-process_numbers([Head | Rest], CurrentValue, CurrentList) when Head >= 48, Head =< 57 ->
-    NewValue = Head - 48,
-    process_numbers(Rest, (10 * CurrentValue) + NewValue, CurrentList);
-
-process_numbers([], CurrentValue, CurrentList) ->
-    lists:reverse([CurrentValue | CurrentList]).
-
-
-
-process_row(Input) ->
-    process_row(Input, space, 0, []).
-
-process_row([Head | Rest], number, CurrentValue, CurrentList) when Head == 32 ->
-    process_row(Rest, space, 0, [CurrentValue | CurrentList]);
-
-process_row([Head | Rest], number, CurrentValue, CurrentList) when Head >= 48, Head =< 57 ->
-    NewValue = Head - 48,
-    process_row(Rest, number, (10 * CurrentValue) + NewValue, CurrentList);
-
-process_row([Head | Rest], space, _, CurrentList) when Head == 32 ->
-    process_row(Rest, space, 0, CurrentList);
-
-process_row([Head | Rest], space, _, CurrentList) when Head >= 48, Head =< 57 ->
-    NewValue = Head - 48,
-    process_row(Rest, number, NewValue, CurrentList);
-
-process_row([], space, _, CurrentList) ->
-    lists:reverse(CurrentList);
-
-process_row([], number, CurrentValue, CurrentList) ->
-    lists:reverse([CurrentValue | CurrentList]).
-
-
-%% Test functions %%
 
 get_line_type_test_() ->
     lists:map(
@@ -115,6 +68,21 @@ get_line_type_test_() ->
             { 13, blank }
         ]).
 
+% process_numbers
+
+process_numbers(Input) ->
+    process_numbers(Input, 0, []).
+
+process_numbers([Head | Rest], CurrentValue, CurrentList) when Head == 44 ->
+    process_numbers(Rest, 0, [CurrentValue | CurrentList]);
+
+process_numbers([Head | Rest], CurrentValue, CurrentList) when Head >= 48, Head =< 57 ->
+    NewValue = Head - 48,
+    process_numbers(Rest, (10 * CurrentValue) + NewValue, CurrentList);
+
+process_numbers([], CurrentValue, CurrentList) ->
+    lists:reverse([CurrentValue | CurrentList]).
+
 process_numbers_test_() ->
     lists:map(
         fun({Input, Expected}) -> ?_assertEqual(Expected,
@@ -124,6 +92,31 @@ process_numbers_test_() ->
             {   "1,13,65,23,1",       [1,13,65,23,1]        },
             {   "119,05,7,8,1234",    [119,5,7,8,1234]      }
         ]).
+
+% process_row
+
+process_row(Input) ->
+    process_row(Input, space, 0, []).
+
+process_row([Head | Rest], number, CurrentValue, CurrentList) when Head == 32 ->
+    process_row(Rest, space, 0, [CurrentValue | CurrentList]);
+
+process_row([Head | Rest], number, CurrentValue, CurrentList) when Head >= 48, Head =< 57 ->
+    NewValue = Head - 48,
+    process_row(Rest, number, (10 * CurrentValue) + NewValue, CurrentList);
+
+process_row([Head | Rest], space, _, CurrentList) when Head == 32 ->
+    process_row(Rest, space, 0, CurrentList);
+
+process_row([Head | Rest], space, _, CurrentList) when Head >= 48, Head =< 57 ->
+    NewValue = Head - 48,
+    process_row(Rest, number, NewValue, CurrentList);
+
+process_row([], space, _, CurrentList) ->
+    lists:reverse(CurrentList);
+
+process_row([], number, CurrentValue, CurrentList) ->
+    lists:reverse([CurrentValue | CurrentList]).
 
 process_row_test_() ->
     lists:map(
