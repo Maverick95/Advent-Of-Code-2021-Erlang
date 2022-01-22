@@ -279,7 +279,7 @@ part1_test() ->
         {board, 2, 4, [2,  0,  12, 3,  7]}
     ],
 
-    Expected = [
+    ExpectedPart1 = [
         {
             "Numbers",
             [7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1]
@@ -312,11 +312,55 @@ part1_test() ->
     % ACT
 
     lists:foreach(fun (Input) -> ok = gen_server:cast(test_part1, Input) end, Data),
-    Actual = gen_server:call(test_part1, result),
+    ActualPart1 = gen_server:call(test_part1, result),
 
     % ASSERT
 
-    ?assertEqual(Actual, Expected),
+    ?assertEqual(ActualPart1, ExpectedPart1),
+
+    % ARRANGE
+
+    ExpectedPart2 = [
+        {
+            "Numbers",
+            [10,16,13,6,15,25,12,22,18,20,8,19,3,26,1]
+        },
+        {
+            "Numbers Processed",
+            [24,21,14,0,2,23,17,11,5,9,4,7]
+        },
+        {
+            "Boards",
+            #{
+                0 => #{
+                    total => 163,
+                    rows =>     #{ 0 => 35,     1 => 8,     2 => 16,    3 => 37,    4 => 67 },
+                    columns =>  #{ 0 => 37,     1 => 35,    2 => 23,    3 => 49,    4 => 19 }
+                },
+                1 => #{
+                    total => 187,
+                    rows =>     #{ 0 => 40,     1 => 31,    2 => 52,    3 => 30,    4 => 34 },
+                    columns =>  #{ 0 => 42,     1 => 41,    2 => 39,    3 => 37,    4 => 28 }
+                },
+                2 => #{
+                    total => 188,
+                    rows =>     #{ 0 => 0,      1 => 60,    2 => 72,    3 => 41,    4 => 15 },
+                    columns =>  #{ 0 => 50,     1 => 24,    2 => 40,    3 => 35,    4 => 39 }
+                }
+            }
+        }],
+
+
+
+    % ACT
+
+    lists:foreach(fun(_) -> gen_server:cast(test_part1, process) end,        
+        lists:seq(1, 12)),
+    ActualPart2 = gen_server:call(test_part1, result),
+
+    % ASSERT
+
+    ?assertEqual(ActualPart2, ExpectedPart2),
 
     % TEARDOWN
 
