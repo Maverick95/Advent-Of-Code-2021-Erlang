@@ -1,4 +1,4 @@
--module(part1).
+-module(part2).
 -behaviour(gen_server).
 
 -include_lib("eunit/include/eunit.hrl").
