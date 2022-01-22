@@ -1,13 +1,12 @@
 -module(part1).
-%-behaviour(gen_server).
+-behaviour(gen_server).
 
 -include_lib("eunit/include/eunit.hrl").
 
 -export([
     init/1,
-    handle_cast/2
-    %,
-    %handle_call/3
+    handle_cast/2,
+    handle_call/3
 ]).
 
 % Initialize
@@ -23,6 +22,19 @@ init(_) ->
         }
     }.
 
+% Reset
+
+handle_cast(reset, _) ->
+    {
+        noreply,
+        #{
+            numbers => [],
+            numbers_processed => [],
+            boards => #{},
+            lookups => #{}
+        }
+    };
+
 % Handle numbers events
 
 handle_cast({numbers, NumbersToAdd}, State) ->
@@ -33,6 +45,11 @@ handle_cast({numbers, NumbersToAdd}, State) ->
             numbers := Numbers ++ NumbersToAdd
         }
     };
+
+% Handle blank event (do nothing)
+
+handle_cast(blank, State) ->
+    { noreply, State };
 
 % Handle board events
 
@@ -204,3 +221,103 @@ subtract(Number, [{BoardIndex, RowIndex, ColumnIndex} | SquaresRest], Boards) ->
         },
 
     subtract(Number, SquaresRest, BoardsNew).
+
+% Query
+
+handle_call(result, _, State) ->
+    #{
+        numbers := Numbers,
+        numbers_processed := NumbersProcessed,
+        boards := Boards
+    } = State,
+    {
+        reply,
+        [
+            {"Numbers", Numbers},
+            {"Numbers Processed", NumbersProcessed},
+            {"Boards", Boards}
+        ],
+        State
+    }.
+
+% Main test function for part1.
+
+part1_test() ->
+
+    % SETUP
+
+    TryResult = gen_server:start_link({local, test_part1}, part1, [], []),
+    Result = case TryResult of
+        {error, {already_started, _}} ->
+            gen_server:stop(test_part1),
+            gen_server:start_link({local, test_part1}, part1, [], []);
+        _ -> TryResult
+    end,
+    {ok, _} = Result,
+
+    % ARRANGE
+
+    Data = [
+        {numbers, [7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1]},
+        blank,
+        {board, 0, 0, [22, 13, 17, 11, 0]},
+        {board, 0, 1, [8,  2,  23, 4,  24]},
+        {board, 0, 2, [21, 9,  14, 16, 7]},
+        {board, 0, 3, [6,  10, 3,  18, 5]},
+        {board, 0, 4, [1,  12, 20, 15, 19]},
+        blank,
+        {board, 1, 0, [3,  15, 0,  2,  22]},
+        {board, 1, 1, [9,  18, 13, 17, 5]},
+        {board, 1, 2, [19, 8,  7,  25, 23]},
+        {board, 1, 3, [20, 11, 10, 24, 4]},
+        {board, 1, 4, [14, 21, 16, 12, 6]},
+        blank,
+        {board, 2, 0, [14, 21, 17, 24, 4]},
+        {board, 2, 1, [10, 16, 15, 9,  19]},
+        {board, 2, 2, [18, 8,  23, 26, 20]},
+        {board, 2, 3, [22, 11, 13, 6,  5]},
+        {board, 2, 4, [2,  0,  12, 3,  7]}
+    ],
+
+    Expected = [
+        {
+            "Numbers",
+            [7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1]
+        },
+        {
+            "Numbers Processed",
+            []
+        },
+        {
+            "Boards",
+            #{
+                0 => #{
+                    total => 300,
+                    rows =>     #{ 0 => 63,     1 => 61,    2 => 67,    3 => 42,    4 => 67 },
+                    columns =>  #{ 0 => 58,     1 => 46,    2 => 77,    3 => 64,    4 => 55 }
+                },
+                1 => #{
+                    total => 324,
+                    rows =>     #{ 0 => 42,     1 => 62,    2 => 82,    3 => 69,    4 => 69 },
+                    columns =>  #{ 0 => 65,     1 => 73,    2 => 46,    3 => 80,    4 => 60 }
+                },
+                2 => #{
+                    total => 325,
+                    rows =>     #{ 0 => 80,     1 => 69,    2 => 95,    3 => 57,    4 => 24 },
+                    columns =>  #{ 0 => 66,     1 => 56,    2 => 80,    3 => 68,    4 => 55 }
+                }
+            }
+        }],
+
+    % ACT
+
+    lists:foreach(fun (Input) -> ok = gen_server:cast(test_part1, Input) end, Data),
+    Actual = gen_server:call(test_part1, result),
+
+    % ASSERT
+
+    ?assertEqual(Actual, Expected),
+
+    % TEARDOWN
+
+    gen_server:stop(test_part1).

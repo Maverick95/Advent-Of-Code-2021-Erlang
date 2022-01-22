@@ -24,7 +24,7 @@ handle_call(Input, _, State) ->
         numbers ->
             Return = {numbers, process_numbers(Input)}, 
             {reply, Return, NewState};
-        blank -> {noreply, NewState};
+        blank -> {reply, blank, NewState};
         {board, BoardIndex, RowIndex} ->
             Return = {board, BoardIndex, RowIndex, process_row(Input)},
             {reply, Return, NewState}
@@ -128,3 +128,111 @@ process_row_test_() ->
             {   "789 3  9  4   1432 ",      [789,3,9,4,1432]    },
             {   "   78  4 64  5  143 7",    [78,4,64,5,143,7]   }
         ]).
+
+% Main test function for input_transform.
+
+input_transform_test() ->
+
+    % SETUP
+
+    TryResult = gen_server:start_link({local, test_input_transform}, input_transform, [], []),
+    Result = case TryResult of
+        {error, {already_started, _}} ->
+            gen_server:stop(test_input_transform),
+            gen_server:start_link({local, test_input_transform}, input_transform, [], []);
+        _ -> TryResult
+    end,
+    {ok, _} = Result,
+    
+    % ARRANGE
+
+    Data = [
+        {
+            "7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1",
+            {numbers, [7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1]}
+        },
+        {
+            "",
+            blank
+        },
+        {
+            "22 13 17 11  0",
+            {board, 0, 0, [22,13,17,11,0]}
+        },
+        {
+            " 8  2 23  4 24",
+            {board, 0, 1, [8,2,23,4,24]}
+        },
+        {
+            "21  9 14 16  7",
+            {board, 0, 2, [21,9,14,16,7]}
+        },
+        {
+            " 6 10  3 18  5",
+            {board, 0, 3, [6,10,3,18,5]}
+        },
+        {
+            " 1 12 20 15 19",
+            {board, 0, 4, [1,12,20,15,19]}
+        },
+        {
+            "",
+            blank
+        },
+        {
+            " 3 15  0  2 22",
+            {board, 1, 0, [3,15,0,2,22]}
+        },
+        {
+            " 9 18 13 17  5",
+            {board, 1, 1, [9,18,13,17,5]}
+        },
+        {
+            "19  8  7 25 23",
+            {board, 1, 2, [19,8,7,25,23]}
+        },
+        {
+            "20 11 10 24  4",
+            {board, 1, 3, [20,11,10,24,4]}
+        },
+        {
+            "14 21 16 12  6",
+            {board, 1, 4, [14,21,16,12,6]}
+        },
+        {
+            "",
+            blank
+        },
+        {
+            "14 21 17 24  4",
+            {board, 2, 0, [14,21,17,24,4]}
+        },
+        {
+            "10 16 15  9 19",
+            {board, 2, 1, [10,16,15,9,19]}
+        },
+        {
+            "18  8 23 26 20",
+            {board, 2, 2, [18,8,23,26,20]}
+        },
+        {
+            "22 11 13  6  5",
+            {board, 2, 3, [22,11,13,6,5]}
+        },
+        {
+            " 2  0 12  3  7",
+            {board, 2, 4, [2,0,12,3,7]}
+        }
+    ],
+    
+    % ACT and ASSERT
+
+    lists:foreach(
+        fun ({Input, Expected}) ->
+            Actual = gen_server:call(test_input_transform, Input),
+            ?assertEqual(Expected, Actual)
+        end, Data),
+
+    % TEARDOWN
+
+    gen_server:stop(test_input_transform).
