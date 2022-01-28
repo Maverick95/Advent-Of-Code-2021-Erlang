@@ -1,44 +1,31 @@
 -module(import).
 -export([
-    terminal/2,
-    file/2
+    terminal/3,
+    file/3
 ]).
 
+process(Input, Server, Manager) ->
+    Transform = gen_server:call(Server, Input),
+    gen_event:notify(Manager, Transform).
 
+terminal(Data, Server, Manager) ->
+    lists:foreach(fun(Input) ->
+        process(Input, Server, Manager)
+    end, Data).
 
-terminal(Data, Manager) ->
-    lists:foreach(fun(X) -> gen_event:notify(Manager, X) end, Data).
+file(Path, Manager, Server) ->
+    {ok, Device} = file:open(Path, read),
+    read_lines(Device, Manager, Server).
 
-
-
-file(Path, Manager) ->
-    case file:open(Path, read) of
-        {ok, Device} ->
-            read_lines(Device, Manager);
-        _ ->
-            error
-    end.
-
-
-
-read_lines(Device, Manager) ->
+read_lines(Device, Manager, Server) ->
     case file:read_line(Device) of
         {ok, Line} ->
-            Data = check_lines(Line),
-            gen_event:notify(Manager, Data),
-            read_lines(Device, Manager);
-        {error, _} ->
-            error;
+            Input = check_lines(Line),
+            process(Input, Server, Manager),
+            read_lines(Device, Manager, Server);
         eof ->
-            case file:close(Device) of
-                ok ->
-                    ok;
-                _ ->
-                    error
-            end
+            ok = file:close(Device)
     end.
-
-
 
 check_lines(Line) ->
     LineReverse = reverse(Line),
@@ -50,8 +37,6 @@ check_lines(Line) ->
             Line
     end.
 
-
-
 reverse(Line) ->
     reverse(Line, []).
 
@@ -60,8 +45,6 @@ reverse([], Current) ->
 
 reverse([Head | Rest], Current) ->
     reverse(Rest, [Head | Current]).
-
-
 
 check_first([], _) ->
     false;

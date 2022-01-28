@@ -27,9 +27,9 @@
         {
             registered,
             [
+                aoc_main_supervisor,
                 aoc_logger_manager,
                 aoc_manager,
-                aoc_input_manager,
                 aoc_input_transform,
                 aoc_data_server_0,
                 aoc_data_server_1

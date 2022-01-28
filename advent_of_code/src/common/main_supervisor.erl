@@ -3,7 +3,6 @@
 -export([
     start_logger/0,
     start_data_handler/1,
-    start_input_handler/0,
     start_input_terminal/1,
     start_input_file/1,
     start_process/1,
@@ -45,20 +44,13 @@ start_data_handler(ServerDetails) ->
 
 
 
-start_input_handler() ->
-    Handler = gen_event:start_link({local, aoc_input_manager}),
-    gen_event:add_handler(aoc_input_manager, input_handler, {aoc_input_transform, aoc_manager}),
-    Handler.
-
-
-
 start_input_terminal(Data) ->
-    import:terminal(Data, aoc_input_manager).
+    import:terminal(Data, aoc_input_transform, aoc_input_manager).
 
 
 
 start_input_file(File) ->
-    import:file(File, aoc_input_manager).
+    import:file(File, aoc_input_transform, aoc_input_manager).
 
 
 
@@ -100,10 +92,6 @@ init({Servers, Transform}) ->
         #{
             id => sup_input_server,
             start => {gen_server, start_link, [{local, aoc_input_transform}, Transform, [], []]}
-        },
-        #{
-            id => sup_input_handler,
-            start => {main_supervisor, start_input_handler, []}
         }
     ],
 
@@ -149,7 +137,7 @@ reload_servers(Day) ->
         { "input_transform", aoc_input_transform } ],
 
     _Results = lists:map(fun({File, _}) -> full_load(File, Day) end, Files),
-    _Resets = lists:foreach(fun({_, Server}) -> spawn(gen_server, cast, [Server, reset]) end, Files),
+    _Resets = lists:foreach(fun({_, Server}) -> gen_server:cast(Server, reset) end, Files),
     ok.
 
 
@@ -161,7 +149,7 @@ reset_servers() ->
         { "part2", aoc_data_server_1 },
         { "input_transform", aoc_input_transform } ],
 
-    _Resets = lists:foreach(fun({_, Server}) -> spawn(gen_server, cast, [Server, reset]) end, Files),
+    _Resets = lists:foreach(fun({_, Server}) -> gen_server:cast(Server, reset) end, Files),
     ok.
 
 

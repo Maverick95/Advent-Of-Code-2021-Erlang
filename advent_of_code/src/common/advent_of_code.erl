@@ -12,7 +12,7 @@
 ]).
 
 start(_, Args) ->
-    supervisor:start_link(main_supervisor, Args).
+    supervisor:start_link({local, aoc_main_supervisor}, main_supervisor, Args).
 
 
 % Add array of puzzle input lines (as strings).
