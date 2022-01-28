@@ -45,14 +45,20 @@ start_data_handler(ServerDetails) ->
 
 
 start_input_terminal(Data) ->
-    import:terminal(Data, aoc_input_transform, aoc_input_manager).
-
-
+    import:terminal(Data,
+        [
+            aoc_input_transform,
+            aoc_data_server_0,
+            aoc_data_server_1
+        ]).
 
 start_input_file(File) ->
-    import:file(File, aoc_input_transform, aoc_input_manager).
-
-
+    import:file(File,
+        [
+            aoc_input_transform,
+            aoc_data_server_0,
+            aoc_data_server_1
+        ]).
 
 start_process(Count) ->
     start_process(0, Count).

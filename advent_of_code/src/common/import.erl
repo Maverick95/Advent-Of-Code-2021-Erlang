@@ -1,28 +1,31 @@
 -module(import).
 -export([
-    terminal/3,
-    file/3
+    terminal/2,
+    file/2
 ]).
 
-process(Input, Server, Manager) ->
-    Transform = gen_server:call(Server, Input),
-    gen_event:notify(Manager, Transform).
+process(Input, Servers) ->
+    [Transform | Parts] = Servers,
+    Result = gen_server:call(Transform, Input),
+    lists:foreach(fun(Part) ->
+        gen_server:cast(Part, Result)
+    end, Parts).
 
-terminal(Data, Server, Manager) ->
+terminal(Data, Servers) ->
     lists:foreach(fun(Input) ->
-        process(Input, Server, Manager)
+        process(Input, Servers)
     end, Data).
 
-file(Path, Server, Manager) ->
+file(Path, Servers) ->
     {ok, Device} = file:open(Path, read),
-    read_lines(Device, Server, Manager).
+    read_lines(Device, Servers).
 
-read_lines(Device, Server, Manager) ->
+read_lines(Device, Servers) ->
     case file:read_line(Device) of
         {ok, Line} ->
             Input = check_lines(Line),
-            process(Input, Server, Manager),
-            read_lines(Device, Server, Manager);
+            process(Input, Servers),
+            read_lines(Device, Servers);
         eof ->
             ok = file:close(Device)
     end.
