@@ -14,11 +14,10 @@
             modules,
             [
                 advent_of_code,
-                main_supervisor,
                 import,
-                input_handler,
-                data_handler,
                 log_handler,
+                main_supervisor,
+                parts,
                 input_transform,
                 part1,
                 part2
@@ -29,7 +28,6 @@
             [
                 aoc_main_supervisor,
                 aoc_logger_manager,
-                aoc_manager,
                 aoc_input_transform,
                 aoc_data_server_0,
                 aoc_data_server_1

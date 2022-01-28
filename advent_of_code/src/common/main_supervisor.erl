@@ -2,7 +2,6 @@
 -behaviour(supervisor).
 -export([
     start_logger/0,
-    start_data_handler/1,
     start_input_terminal/1,
     start_input_file/1,
     start_process/1,
@@ -32,18 +31,6 @@ start_logger() ->
     gen_event:add_handler(aoc_logger_manager, log_handler, aoc_logger),
     Handler.
 
-
-
-start_data_handler(ServerDetails) ->
-    Handler = gen_event:start_link({local, aoc_manager}), 
-    lists:foreach(fun(X) ->
-       {_, Id, _} = X,
-       gen_event:add_handler(aoc_manager, data_handler, {Id, aoc_logger_manager}) end,
-       ServerDetails),
-    Handler.
-
-
-
 start_input_terminal(Data) ->
     import:terminal(Data,
         [
@@ -63,19 +50,24 @@ start_input_file(File) ->
 start_process(Count) ->
     start_process(0, Count).
     
-start_process(Index, Count) when Index >= Count ->
+start_process(Index, Count) when Index == Count ->
     ok;
 
 start_process(Index, Count) ->
-    gen_event:notify(aoc_manager, process),
+    parts:process(
+        [
+            aoc_data_server_0,
+            aoc_data_server_1
+        ], process),
     start_process(Index + 1, Count).
 
-
-
 start_query() ->
-    gen_event:notify(aoc_manager, result).
-
-
+    parts:result(
+        [
+            aoc_data_server_0,
+            aoc_data_server_1
+        ],
+        aoc_logger_manager).
 
 init({Servers, Transform}) ->
 
@@ -90,11 +82,7 @@ init({Servers, Transform}) ->
 
     ServerConfigs = server_configs(ServerDetails),
 
-    BaseConfigs = [     
-        #{
-            id => sup_data_handler,
-            start => {main_supervisor, start_data_handler, [ServerDetails]}
-        },
+    BaseConfigs = [
         #{
             id => sup_input_server,
             start => {gen_server, start_link, [{local, aoc_input_transform}, Transform, [], []]}
@@ -121,9 +109,7 @@ server_details([Module | Rest], Current, Index) ->
     SupId = list_to_atom("sup_data_server_" ++ Suffix),
     Id = list_to_atom("aoc_data_server_" ++ Suffix),
     Next = {SupId, Id, Module},
-    server_details(Rest, Current ++ [Next], Index + 1).
-
-
+    server_details(Rest, [Next | Current], Index + 1).
 
 server_configs(Details) ->
     lists:map(
@@ -146,19 +132,13 @@ reload_servers(Day) ->
     _Resets = lists:foreach(fun({_, Server}) -> gen_server:cast(Server, reset) end, Files),
     ok.
 
-
-
 reset_servers() ->
-
-    Files = [
-        { "part1", aoc_data_server_0 },
-        { "part2", aoc_data_server_1 },
-        { "input_transform", aoc_input_transform } ],
-
-    _Resets = lists:foreach(fun({_, Server}) -> gen_server:cast(Server, reset) end, Files),
-    ok.
-
-
+    parts:process(
+        [
+            aoc_input_transform,
+            aoc_data_server_0,
+            aoc_data_server_1
+        ], reset).
 
 full_load(File, Day) ->
     AsciiDay = day_to_ascii(Day),
