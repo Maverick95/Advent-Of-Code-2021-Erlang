@@ -13,16 +13,16 @@ terminal(Data, Server, Manager) ->
         process(Input, Server, Manager)
     end, Data).
 
-file(Path, Manager, Server) ->
+file(Path, Server, Manager) ->
     {ok, Device} = file:open(Path, read),
-    read_lines(Device, Manager, Server).
+    read_lines(Device, Server, Manager).
 
-read_lines(Device, Manager, Server) ->
+read_lines(Device, Server, Manager) ->
     case file:read_line(Device) of
         {ok, Line} ->
             Input = check_lines(Line),
             process(Input, Server, Manager),
-            read_lines(Device, Manager, Server);
+            read_lines(Device, Server, Manager);
         eof ->
             ok = file:close(Device)
     end.
