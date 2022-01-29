@@ -14,7 +14,7 @@ handle_call(result, _, _) ->
     {
         reply,
         [
-            { "Output", "part1 placeholder server" }
+            { "Output", part1_template }
         ],
         ok
     };

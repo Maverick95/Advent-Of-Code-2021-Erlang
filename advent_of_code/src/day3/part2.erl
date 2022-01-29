@@ -9,11 +9,11 @@
 
 
 init(_) ->
-    {ok, {unset, []}}.
+    {ok, unset}.
 
 
 
-handle_cast({L, V}, {unset, []}) ->
+handle_cast({L, V}, unset) ->
     {noreply, {L, [V]}};
 
 handle_cast({L, _}, {Length, Values}) when L /= Length ->
@@ -22,12 +22,17 @@ handle_cast({L, _}, {Length, Values}) when L /= Length ->
 handle_cast({_, V}, {Length, Values}) ->
     {noreply, {Length, [V | Values]}};
 
-
-
 handle_cast(reset, _) ->
-    {noreply, {unset, []}}.
+    {noreply, unset}.
 
-
+handle_call(result, _, unset) ->
+    {
+        reply,
+        [
+            {"State", unset}
+        ],
+        unset
+    };
 
 handle_call(result, _, {Length, Values}) ->
     Oxygen = get_aggr_bit_sequence(Values, most, Length - 1),

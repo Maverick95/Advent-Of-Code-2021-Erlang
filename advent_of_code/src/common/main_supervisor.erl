@@ -95,7 +95,7 @@ reload_servers(Day) ->
         { "part2", aoc_data_server_1 },
         { "input_transform", aoc_input_transform } ],
 
-    _Results = lists:map(fun({File, _}) -> full_load(File, Day) end, Files),
+    _Results = lists:map(fun({File, _}) -> load(File, Day) end, Files),
     _Resets = lists:foreach(fun({_, Server}) -> gen_server:cast(Server, reset) end, Files),
     ok.
 
@@ -107,23 +107,23 @@ reset_servers() ->
             aoc_data_server_1
         ], reset).
 
-full_load(File, Day) ->
-    AsciiDay = day_to_ascii(Day),
-    Directory = "../src/day" ++ AsciiDay,
+load(File, Day) ->
     FileAtom = list_to_atom(File),
-    CompileResult = compile:file(Directory ++ "/" ++ File),
-    if CompileResult /= error ->
-        Loaded =
-            case code:is_loaded(FileAtom) of
-                {file, _} -> true;
-                _ -> false
-            end,
-        Deleted = code:delete(FileAtom),
-        Purge = Loaded and (not Deleted),
-        {File, load(FileAtom, Purge)};
-    true ->
-        {File, error}
-    end.
+    AsciiDay = day_to_ascii(Day),
+    FileTarget = "../src/day" ++ AsciiDay ++ "/" ++ File,
+    FileFallback = "../src/template" ++ "/" ++ File,
+
+    _Result = case compile:file(FileTarget) of
+        error ->
+            compile:file(FileFallback);
+        _Other ->
+            _Other
+    end,
+
+    code:purge(FileAtom),
+    code:delete(FileAtom),
+    {Result, _} = code:load_file(FileAtom),
+    Result.
     
 day_to_ascii(Day) when Day > 0 ->
     day_to_ascii(Day, []).
@@ -136,15 +136,3 @@ day_to_ascii(Day, Current) ->
     Head = 48 + Remainder,
     Next = (Day - Remainder) div 10,
     day_to_ascii(Next, [Head | Current]).
-
-load(FileAtom, false) ->
-    straight_load(FileAtom);
-
-load(FileAtom, true) ->
-    code:purge(FileAtom),
-    code:delete(FileAtom),
-    straight_load(FileAtom).
-
-straight_load(FileAtom) ->
-    {Result, _} = code:load_file(FileAtom),
-    Result.
