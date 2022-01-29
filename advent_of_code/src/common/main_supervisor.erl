@@ -11,21 +11,6 @@
     reset_servers/0
 ]).
 
-
-
-% Reference names to supervisors / children are as follows -
-
-% Logger - sup_logger
-% Manager - aoc_logger_manager
-
-% Data handler - sup_data_handler
-% Manager - aoc_manager
-
-% Input handler - sup_input_handler
-% Manager - aoc_input_manager
-
-
-
 start_logger() ->
     Handler = gen_event:start_link({local, aoc_logger_manager}),
     gen_event:add_handler(aoc_logger_manager, log_handler, aoc_logger),

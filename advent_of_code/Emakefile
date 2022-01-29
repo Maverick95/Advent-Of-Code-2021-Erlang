@@ -1,6 +1,7 @@
 {
     [
-        'src/common/*'
+        'src/common/*',
+        'src/template/*'
     ],
     [
         {
