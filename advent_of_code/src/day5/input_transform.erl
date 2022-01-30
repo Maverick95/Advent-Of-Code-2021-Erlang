@@ -7,71 +7,31 @@
     handle_cast/2
     ]).
 
-
-
 init(_) ->
-    {ok, 0}.
-
-
+    {ok, ok}.
 
 handle_call(Input, _, _) ->
-    {reply, create_coords(Input), 0}.
-
-
+    {reply, create_coords(Input), ok}.
 
 handle_cast(reset, _) ->
-    {noreply, 0}.
-
-
+    {noreply, ok}.
 
 create_coords(Input) ->
     Split = string:split(Input, " -> ", all),
-    case length(Split) of
-        2 ->
-            Values = lists:map(fun (X) -> create_coord(X) end, Split),
-            Valid = lists:all(fun (X) -> X /= error end, Values),
-            case Valid of
-                true ->
-                    [Start, End] = Values,
-                    {Start, End};
-                false ->
-                    error
-            end;    
-        _ ->
-            error
-    end.
-
-
+    2 = length(Split),
+    Values = lists:map(fun (X) -> create_coord(X) end, Split),
+    [Start, End] = Values,
+    {Start, End}.
 
 create_coord(Input) ->
     Split = string:split(Input, ",", all),
-    case length(Split) of
-        2 ->
-            Values = lists:map(fun (X) -> to_integer(X) end, Split),
-            Valid = lists:all(fun (X) -> X /= error end, Values), 
-            case Valid of
-                true ->
-                    [X, Y] = Values,
-                    {X, Y};
-                false ->
-                    error
-            end;
-        _ ->
-            error
-    end.
-
-
+    2 = length(Split),
+    Values = lists:map(fun (X) -> to_integer(X) end, Split),
+    [X, Y] = Values,
+    {X, Y}.
 
 to_integer(Input) ->
-    Result = string:to_integer(Input),
-    case Result of
-        {error, _} ->
-            error;
-        {Value, Rest} ->
-            if
-                Value >= 0, Rest == "" ->
-                    Value;
-                true ->
-                    error
-            end
+    {Result, []} = string:to_integer(Input),
+    if Result >= 0 ->
+        Result
     end.
