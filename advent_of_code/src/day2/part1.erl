@@ -6,37 +6,20 @@
     handle_cast/2
 ]).
 
-
-
 init(_) ->
     {ok, {0, 0}}.
 
-
-
-handle_cast({_, Value}, State) when Value < 0 ->
-    {noreply, State};
-
-handle_cast({forward, Value}, State) ->
-    {Distance, Depth} = State,
+handle_cast({forward, Value}, {Distance, Depth}) when Value > 0 ->
     {noreply, {Distance + Value, Depth}};
 
-handle_cast({up, Value}, {Distance, Depth}) when Value > Depth ->
-    {noreply, {Distance, Depth}};
-
-handle_cast({up, Value}, State) ->
-    {Distance, Depth} = State,
+handle_cast({up, Value}, {Distance, Depth}) when Value > 0, Value =< Depth ->
     {noreply, {Distance, Depth - Value}};
 
-handle_cast({down, Value}, State) ->
-    {Distance, Depth} = State,
+handle_cast({down, Value}, {Distance, Depth}) when Value > 0 ->
     {noreply, {Distance, Depth + Value}};
-
-
 
 handle_cast(reset, _) ->
     {noreply, {0, 0}}.
-
-
 
 handle_call(result, _, State) ->
     {Distance, Depth} = State,
@@ -44,7 +27,8 @@ handle_call(result, _, State) ->
         reply,
         [
             {"Distance", Distance},
-            {"Depth", Depth}
+            {"Depth", Depth},
+            {"Distance x Depth", Distance * Depth}
         ],
         State
     }.
