@@ -7,8 +7,8 @@
     start_process/1,
     start_query/0,
     init/1,
-    reload_servers/1,
-    reset_servers/0
+    reset_servers/0,
+    reload_servers/1
 ]).
 
 start_logger() ->
@@ -55,6 +55,7 @@ start_query() ->
         aoc_logger_manager).
 
 init(Servers) ->
+    reload_servers(fallback),
     {
         ok,
         {
@@ -88,17 +89,6 @@ init(Servers) ->
         }
     }.
 
-reload_servers(Day) ->
-
-    Files = [
-        { "part1", aoc_data_server_0 },
-        { "part2", aoc_data_server_1 },
-        { "input_transform", aoc_input_transform } ],
-
-    _Results = lists:map(fun({File, _}) -> load(File, Day) end, Files),
-    _Resets = lists:foreach(fun({_, Server}) -> gen_server:cast(Server, reset) end, Files),
-    ok.
-
 reset_servers() ->
     parts:process(
         [
@@ -107,19 +97,48 @@ reset_servers() ->
             aoc_data_server_1
         ], reset).
 
-load(File, Day) ->
-    FileAtom = list_to_atom(File),
-    AsciiDay = day_to_ascii(Day),
-    FileTarget = "../src/day" ++ AsciiDay ++ "/" ++ File,
-    FileFallback = "../src/template" ++ "/" ++ File,
+reload_servers(Args) ->
+    Files = [
+        { "part1", aoc_data_server_0 },
+        { "part2", aoc_data_server_1 },
+        { "input_transform", aoc_input_transform } ],
 
-    _Result = case compile:file(FileTarget) of
+    _Results = lists:map(
+        fun({File, _}) ->
+            case Args of
+                fallback ->
+                    load_fallback_file(File);
+                {target, Day} ->
+                    load_target_file(File, Day)
+            end
+        end, Files),
+
+    _Resets = lists:foreach(fun({_, Server}) -> gen_server:cast(Server, reset) end, Files),
+    ok.
+
+load_target_file(File, Day) ->
+    FileTarget = get_target_file(File, Day),
+    case compile:file(FileTarget) of
         error ->
-            compile:file(FileFallback);
-        _Other ->
-            _Other
-    end,
+            load_fallback_file(File);
+        _ ->
+            load(File)
+    end.
 
+load_fallback_file(File) ->
+    FileFallback = get_fallback_file(File),
+    compile:file(FileFallback),
+    load(File).
+
+get_target_file(File, Day) ->
+    AsciiDay = day_to_ascii(Day),
+    "../src/day" ++ AsciiDay ++ "/" ++ File.
+
+get_fallback_file(File) ->
+    "../src/template" ++ "/" ++ File.
+
+load(File) ->
+    FileAtom = list_to_atom(File),
     code:purge(FileAtom),
     code:delete(FileAtom),
     {Result, _} = code:load_file(FileAtom),
