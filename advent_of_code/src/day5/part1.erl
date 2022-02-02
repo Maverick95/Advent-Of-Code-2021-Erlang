@@ -6,38 +6,25 @@
     handle_cast/2
 ]).
 
-
-
 init(_) ->
     {ok, {#{}, 0}}.
-
-
 
 handle_cast({C1, C2}, State) when C1 == C2 ->
     NewState = handle_update(C1, {0, 0}, 0, State),
     {noreply, NewState};
 
-handle_cast({{X1, Y1}, {X2, Y2}}, State) when X1 == X2 ->
+handle_cast({{X1, Y1}, {X2, Y2}}, State) when X1 == X2, Y1 /= Y2 ->
     Diff = if Y1 < Y2 -> 1; true -> -1 end,
     NewState = handle_update({X1, Y1}, {0, Diff}, abs(Y2 - Y1), State),
     {noreply, NewState};
 
-handle_cast({{X1, Y1}, {X2, Y2}}, State) when Y1 == Y2 ->
+handle_cast({{X1, Y1}, {X2, Y2}}, State) when Y1 == Y2, X1 /= X2 ->
     Diff = if X1 < X2 -> 1; true -> -1 end,
     NewState = handle_update({X1, Y1}, {Diff, 0}, abs(X2 - X1), State),
     {noreply, NewState};
 
-
-
 handle_cast(reset, _) ->
-    {noreply, {#{}, 0}};
-
-
-
-handle_cast(_, State) ->
-    {noreply, State}.
-
-
+    {noreply, {#{}, 0}}.
 
 handle_call(result, _, State) ->
     {Map, Volume} = State,
@@ -45,20 +32,19 @@ handle_call(result, _, State) ->
         reply,
         [
             {"Map", Map},
-            {"Volume", Volume}
+            {"Coordinates appearing at least twice", Volume}
         ],
         State
     }.
 
+handle_update(C, D, DiffCountMax, State) ->
+    handle_update(C, D, 0, DiffCountMax, State).
 
-
-handle_update(C, D, Increases, State) ->
-    handle_update(C, D, 0, Increases, State).
-
-handle_update(_, _, Index, Increases, State) when Index > Increases ->
+handle_update(_, _, DiffCount, DiffCountMax, State) when DiffCount > DiffCountMax ->
     State;
 
-handle_update({X, Y}, {DiffX, DiffY}, Index, Increases, State) ->
+handle_update({X, Y}, Diff, DiffCount, DiffCountMax, State) ->
+    {DiffX, DiffY} = Diff,
     {Map, Volume} = State,
     Count =
         case maps:find({X, Y}, Map) of
@@ -76,4 +62,4 @@ handle_update({X, Y}, {DiffX, DiffY}, Index, Increases, State) ->
             _ ->
                 Volume
         end,
-    handle_update({X + DiffX, Y + DiffY}, {DiffX, DiffY}, Index + 1, Increases, {NewMap, NewVolume}).
+    handle_update({X + DiffX, Y + DiffY}, Diff, DiffCount + 1, DiffCountMax, {NewMap, NewVolume}).
