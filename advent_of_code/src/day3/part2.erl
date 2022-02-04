@@ -6,21 +6,14 @@
     handle_cast/2
 ]).
 
-
-
 init(_) ->
     {ok, unset}.
-
-
 
 handle_cast({L, V}, unset) ->
     {noreply, {L, [V]}};
 
-handle_cast({L, _}, {Length, Values}) when L /= Length ->
-    {noreply, {Length, Values}};
-
-handle_cast({_, V}, {Length, Values}) ->
-    {noreply, {Length, [V | Values]}};
+handle_cast({L, V}, {L, Values}) ->
+    {noreply, {L, [V | Values]}};
 
 handle_cast(reset, _) ->
     {noreply, unset}.
@@ -46,8 +39,6 @@ handle_call(result, _, {Length, Values}) ->
         {Length, Values}
     }.
 
-
-
 get_aggr_bit_sequence([], _, _) ->
     error;
 
@@ -66,16 +57,12 @@ get_aggr_bit_sequence(Values, Type, N) ->
     Filtered = lists:filter(filter_value(Status, N, Type), Values),
     get_aggr_bit_sequence(Filtered, Type, N - 1).
 
-
-
 get_bitvalue(Value, N) ->
     Bitvalue = Value band (1 bsl N),
     if
         Bitvalue > 0 -> 1;
         true -> 0
     end.
-
-
 
 filter_value({Ones, Zeroes}, N, Type) ->
     Filter =
