@@ -4,6 +4,7 @@
     start_logger/0,
     start_input_terminal/1,
     start_input_file/1,
+    start_input_file/2,
     start_process/1,
     start_query/0,
     init/1,
@@ -26,6 +27,14 @@ start_input_terminal(Data) ->
 
 start_input_file(File) ->
     import:file(File,
+        [
+            aoc_input_transform,
+            aoc_data_server_0,
+            aoc_data_server_1
+        ]).
+
+start_input_file(File, Separator) ->
+    import:file(File, Separator,
         [
             aoc_input_transform,
             aoc_data_server_0,

@@ -4,6 +4,7 @@
     start/2,
     terminal/1,
     file/1,
+    file/2,
     process/1,
     query/0,
     reload/1,
@@ -20,6 +21,9 @@ terminal(Data) ->
 
 file(File) ->
     spawn(main_supervisor, start_input_file, [File]).
+
+file(File, Separator) ->
+    spawn(main_supervisor, start_input_file, [File, Separator]).
 
 process(Count) ->
     spawn(main_supervisor, start_process, [Count]).
