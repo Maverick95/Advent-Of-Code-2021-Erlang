@@ -32,6 +32,7 @@ read(Device, Input, Separator, SeparatorIndex, Servers) ->
                     read(Device, Input ++ [Next], Separator, 1, Servers)
             end;
         eof ->
+            process(Input, Servers),
             ok = file:close(Device)
     end.
 
